@@ -1,0 +1,39 @@
+---
+description: Per-metric cache TTL rules for the research pipeline
+globs: src/services/research/**/*.py
+alwaysApply: false
+---
+
+## Research Cache TTLs
+
+Every metric fetched in the research pipeline has a defined TTL. Do not cache metrics marked
+"no cache", and do not extend TTLs without an ADR in `docs/DECISIONS.md`.
+
+### TTL reference
+
+| Metric | TTL | Rationale |
+|---|---|---|
+| `market_cap` | 30 days | Slow-moving fundamental |
+| `category` | 30 days | Producer / Developer / Explorer / Royalty — rarely changes |
+| `jurisdiction_risk` | 30 days | Country-level rating, infrequent updates |
+| `aisc` | 30 days | All-in sustaining cost from quarterly reports |
+| `institutional_interest` | 30 days | 13F filings are quarterly |
+| `upcoming_catalysts` | 30 days | Earnings dates, permit decisions — scheduled events |
+| `short_term_returns` | 1 day | 3d / 7d / 14d rolling returns |
+| `volume_spikes` | no cache | Intraday signal, always fetch live |
+| `volatility` | no cache | Intraday signal, always fetch live |
+| `metal_correlation` | no cache | Rolling divergence vs spot price |
+| `news_sentiment` | no cache | News cycle moves fast |
+| `social_sentiment` | no cache | Reddit / social moves fast |
+| `analyst_sentiment` | no cache | Ratings can change without notice |
+| `insider_trades` | no cache | Material non-public risk if stale |
+| `option_flows` | no cache | Not yet implemented; cache TBD |
+
+### Implementation rules
+
+- Cache keys must include the ticker symbol and the metric name: `f"{ticker}:{metric}"`
+- Store the `fetched_at` timestamp alongside every cached value
+- On cache hit, compare `fetched_at + ttl` against `now()` before returning — do not trust DB-level expiry alone
+- On cache miss, fetch, store, then return
+- The `short_term_returns` cache must be invalidated if a corporate action (split, dividend) is detected
+- Never cache a value that arrived with an error or empty response — re-fetch on next pipeline run

@@ -3,8 +3,23 @@ description: General project guidelines and best practices
 alwaysApply: true
 ---
 
+## Context Documents
+
+Read these before making architectural decisions or starting non-trivial work:
+
+- `docs/ARCHITECTURE.md` — system design, data flow, agent pipeline, tech stack decisions
+- `docs/STATUS.md` — current task backlog, in-progress work, and what's done
+- `docs/DECISIONS.md` — architectural decision log (ADRs)
+
+## Project Summary
+
+Autonomous swing trading bot for precious metals (NYSE, NYSE Arca, NASDAQ). Runs on a FastAPI server with `arq`-based background jobs. Uses PydanticAI agents over OpenRouter LLMs. Trades via Alpaca. Data from Finnhub, TwelveData, Reddit. Stores state in PostgreSQL. Controlled via Telegram bot. Visualised via local Metabase.
+
+## General Rules
+
 - Do not modify unrelated files
 - Respect existing project structure and patterns
 - Avoid overengineering MVP features
-- Always consider design patterns and best practices that we may use here
-- Keep code clean and minimalistic. If unsure, do less, not more
+- Keep code clean and minimalistic — if unsure, do less, not more
+- Before any architectural decision, check `docs/DECISIONS.md` to avoid re-litigating settled questions
+- Record new architectural decisions as ADRs in `docs/DECISIONS.md`

@@ -1,0 +1,82 @@
+---
+description: Conventions for defining PydanticAI agents in this project
+globs: src/agents/**/*.py
+alwaysApply: false
+---
+
+## PydanticAI Agent Conventions
+
+Every agent module under `src/agents/` must follow this structure.
+
+### Module layout
+
+Each agent file should define, in order:
+1. A `Deps` dataclass (typed, never `dict` or `Any`)
+2. A result `BaseModel` subclass
+3. The `Agent` instance
+4. Tool functions
+5. An async `run_<agent_name>` entrypoint function
+
+```python
+from dataclasses import dataclass
+from pydantic import BaseModel
+from pydantic_ai import Agent, RunContext
+
+@dataclass
+class Deps:
+    db: AsyncConnection
+    ticker: str
+
+class Result(BaseModel):
+    summary: str
+    confidence: float  # 0.0–1.0; include on all result models
+
+agent = Agent(
+    "openrouter:...",
+    deps_type=Deps,
+    result_type=Result,
+    system_prompt="...",
+)
+
+@agent.tool
+async def fetch_data(ctx: RunContext[Deps]) -> str:
+    """Docstring is required — it becomes the tool description sent to the LLM."""
+    return await ctx.deps.db.fetch(ctx.deps.ticker)
+
+@agent.tool_plain
+def format_number(value: float) -> str:
+    """Use tool_plain when RunContext is not needed."""
+    return f"{value:.2f}"
+
+async def run_my_agent(ticker: str, db: AsyncConnection) -> Result:
+    result = await agent.run("analyse this ticker", deps=Deps(db=db, ticker=ticker))
+    return result.output
+```
+
+### Rules
+
+- `Deps` must be a typed dataclass — never pass raw `dict` or `Any` as deps
+- Result models must always include a `confidence: float` field (0.0–1.0)
+- Every tool must have a docstring — this is the description the LLM receives
+- Use `@agent.tool` when you need `RunContext`; use `@agent.tool_plain` when you don't
+- Dynamic system prompts that depend on runtime state must use `@agent.system_prompt(dynamic=True)`
+- Raise `ModelRetry` inside a tool to signal the LLM should retry with corrected input
+
+### Multi-agent handoff
+
+Subagents are called from within a parent agent's tool. The supervisor agent owns orchestration.
+
+```python
+from pydantic_ai import Agent, RunContext
+from src.agents.sentiment import run_sentiment_agent
+from src.agents.technical import run_technical_agent
+
+@supervisor.tool
+async def get_sentiment(ctx: RunContext[SupervisorDeps]) -> str:
+    result = await run_sentiment_agent(ctx.deps.ticker, ctx.deps.db)
+    return result.model_dump_json()
+```
+
+- Never call `agent.run()` at module level — always wrap in an async entrypoint function
+- Each subagent result should be serialised to JSON before being passed up to the supervisor
+- The supervisor is the only agent that communicates with the trader agent
