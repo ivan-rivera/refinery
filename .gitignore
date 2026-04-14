@@ -34,3 +34,6 @@ data/*.sqlite3
 
 # Specstory
 .specstory/
+
+# Claude Code session state (ephemeral logs and PIDs, not structured memories)
+.remember/
