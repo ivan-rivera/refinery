@@ -1,6 +1,6 @@
 [project]
 name = "refinery"
-version = "0.2.1"
+version = "0.2.2"
 description = "Autonomous trading system focusing on precious metals"
 requires-python = ">=3.13"
 authors = [
