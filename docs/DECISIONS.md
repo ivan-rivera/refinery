@@ -6,7 +6,7 @@ This section outlines a log of architectural decisions, in the following format:
 
 ## ADR-001: Use Postgres over SQLite
 
-**Date:** 2026-04-14  
+**Date:** 2026-04-14
 **Status:** Accepted
 
 ### Context

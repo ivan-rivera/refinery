@@ -17,7 +17,7 @@ The bot is expected to run on a FastAPI server with a scheduled background job. 
   * Second, if some trades were triggered due to either stop-loss, take-profit or expiry rules discussed earlier. For these new trades, the bot is expected to write a brief summary on whether my thesis held up or not, and it will attempt to draw some learnings from this that it will store in global memory
   * Third, it will retain, within context, the tickers that I'm currently holding as these may drive better decisions on how to allocate any remaining funds
 * Check if I have any liquidity -- if not, the process can terminate now
-* If I do have funds to allocate, then it will procure candidate tickers from a range of sources such as pre-defined screeners, subreddits, global news and blogs. 
+* If I do have funds to allocate, then it will procure candidate tickers from a range of sources such as pre-defined screeners, subreddits, global news and blogs.
 * The pipeline will run a set of basic elimination rules to narrow down the pool of candidates down
 * Once we have narrowed down a set of candidates, the bot will rank them from highest potential to lowest potential, also using context directly from the sources. This ranked shortlist of tickers will enter a queue
 * For each ticker in the queue, we will push it through a rigorous research phase. This phase may require multiple subagents (sentiment analyser, catalyst evaluator, technical analyst, etc) to parse the information, currate it into a report and let a supervisor agent come up with a assessment based on their findings as well as previous learnings. We want to obtain the following information about the ticker:
