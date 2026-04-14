@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   bump-version:
@@ -23,8 +24,33 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
-      - name: Create bump and tag
-        uses: commitizen-tools/commitizen-action@master
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: uv run cz bump --yes
+        continue-on-error: true
+
+      - name: Push tag
+        if: steps.bump.outcome == 'success'
+        run: git push origin "$(git describe --tags --abbrev=0)"
+
+      - name: Create Pull Request
+        if: steps.bump.outcome == 'success'
+        id: pr
+        uses: peter-evans/create-pull-request@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release/auto-bump
+          title: "bump: version bump"
+          body: "Automated version bump by commitizen."
+          delete-branch: true
+
+      - name: Enable auto-merge
+        if: steps.pr.outputs.pull-request-number
+        run: gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --merge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
