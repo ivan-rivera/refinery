@@ -34,3 +34,5 @@ data/*.sqlite3
 
 # Specstory
 .specstory/
+
+.claude/worktrees/
