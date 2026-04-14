@@ -1,0 +1,64 @@
+---
+description: Risk rules and required fields for all trading and portfolio execution code
+globs: src/agents/trader.py,src/services/portfolio/**/*.py
+alwaysApply: false
+---
+
+## Trading Guardrails
+
+These rules are non-negotiable. Every trade execution path must enforce them.
+
+### Position sizing — the 2.5% rule
+
+The maximum loss on any single trade must not exceed **2.5% of total capital**.
+
+This means stop-loss is not set as a percentage of the entry price alone — it must be calculated
+from total capital:
+
+```python
+max_loss = total_capital * 0.025
+position_size = max_loss / abs(entry_price - stop_loss_price)
+```
+
+Never derive position size from a fixed lot size or a percentage of cash available without
+validating the 2.5% capital constraint first. Do not adjust for slippage.
+
+### Required fields on every trade record
+
+Every row written to the `active_holdings` table must include:
+
+| Field | Type | Notes |
+|---|---|---|
+| `ticker` | `str` | Exchange-qualified symbol |
+| `entry_price` | `Decimal` | Actual fill price |
+| `stop_loss` | `Decimal` | Absolute price, not percentage |
+| `take_profit` | `Decimal` | Absolute price, not percentage |
+| `expiry_date` | `date` | Date after which thesis is considered failed |
+| `thesis` | `str` | Non-empty. Explains why the trade was entered |
+| `position_size` | `int` | Number of shares, validated against 2.5% rule |
+
+Reject (raise, do not silently default) if any field is missing or `thesis` is an empty string.
+
+### Expiry-triggered sales
+
+When a position is sold due to expiry (not stop-loss or take-profit):
+
+1. Execute the sale via Alpaca
+2. Write a `learnings` entry to the `trade_journal` table, including:
+   - Whether the thesis held up (bool)
+   - A brief explanation of why it did or did not
+   - The ticker, entry/exit prices, and holding duration
+3. The trader agent must not skip step 2 even if the LLM call fails — wrap in try/except and log a structured error
+
+### Liquidity check
+
+Before sizing any position, verify `available_cash > 0`. Terminate the trade loop
+if no liquidity is available — do not attempt a zero-size trade.
+
+### Guardrail validation order
+
+1. Check liquidity
+2. Calculate position size from 2.5% rule
+3. Validate all required fields are present
+4. Execute trade
+5. Record thesis + expiry in `active_holdings`
