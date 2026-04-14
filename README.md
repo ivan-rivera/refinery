@@ -17,7 +17,7 @@ Autonomous trading system focusing on precious metals
 
 | Command | Description |
 |---|---|
-| `just install` | Install all dependencies |
+| `just install` | Install all required dependencies |
 | `just lint` | Run pre-commit hooks (ruff + mypy) |
 | `just test` | Run tests with coverage |
 | `just coverage` | Run tests and open HTML coverage report |
