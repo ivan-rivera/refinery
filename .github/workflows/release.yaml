@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   bump-version:
     if: "!startsWith(github.event.head_commit.message, 'bump:')"
@@ -12,7 +15,7 @@ jobs:
     name: "Bump version and create changelog"
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
