@@ -4,8 +4,12 @@ This document outlines status of tasks that need to be completed.
 
 ## Tasks
 
-### Backlog
-
+- [ ] Set up environment config (pydantic `Settings` class)
+- [ ] Set up PostgreSQL with SQLAlchemy + Alembic migrations
+- [ ] Create DB schema: `holdings`, `trades`, `learnings`, `research_cache`
+- [ ] Set up `arq` with Redis for background job management
+- [ ] Set up FastAPI app skeleton with health check endpoint
+- [ ] Connect to Alpaca API (auth, client wrapper)
 - [ ] Find appropriate data sources (human only)
 - [ ] Implement `get_positions()` — fetch current holdings from Alpaca
 - [ ] Implement `place_order()` — the `trade()` tool; enforce 2.5% max loss rule internally, set stop-loss/take-profit before submitting
@@ -41,23 +45,3 @@ This document outlines status of tasks that need to be completed.
 - [ ] Set up Telegram bot with polling (no webhook)
 - [ ] Whitelist-based user auth
 - [ ] Commands: `/run`, `/evaluate <ticker>`, `/status` (holdings + liquidity summary), `/stop`
-
-### Next
-
-- [ ] Set up environment config (pydantic `Settings` class)
-- [ ] Set up PostgreSQL with SQLAlchemy + Alembic migrations
-- [ ] Create DB schema: `holdings`, `trades`, `learnings`, `research_cache`
-- [ ] Set up `arq` with Redis for background job management
-- [ ] Set up FastAPI app skeleton with health check endpoint
-- [ ] Connect to Alpaca API (auth, client wrapper)
-
-
-
-### In Progress
-
-- [ ] Set up harness for development
-
-### Done
-
-- [x] Update readme
-- [x] Create docs/
