@@ -7,7 +7,7 @@ authors = [
     { name="Ivan Rivera", email="ivan.s.rivera@gmail.com" }
 ]
 dependencies = [
-    "fastapi>=0.136.1",
+    "fastapi>=0.136.3",
     "uvicorn>=0.48.0",
     "gunicorn>=26.0.0",
     "pydantic>=2.13.4",
