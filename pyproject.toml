@@ -25,7 +25,7 @@ test = [
 
 dev = [
     { include-group = "test" },
-    "ruff>=0.15.16",
+    "ruff>=0.15.17",
     "pre-commit>=4.6.0",
     "mypy>=2.1.0",
     "commitizen>=4.16.3",
