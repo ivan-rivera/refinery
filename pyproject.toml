@@ -11,7 +11,7 @@ dependencies = [
     "uvicorn>=0.49.0",
     "gunicorn>=26.0.0",
     "pydantic>=2.13.4",
-    "pydantic-settings>=2.14.1",
+    "pydantic-settings>=2.14.2",
 ]
 
 [dependency-groups]
